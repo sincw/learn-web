@@ -1,4 +1,4 @@
-#CSS定位和浮动
+#  CSS定位和浮动
 
 ##   CSS定位
 CSS的定位属性有三种，分别是绝对定位、相对定位、固定定位。
@@ -74,7 +74,7 @@ position: fixed;     <!-- 固定定位 -->
 ```
 
 效果如下:
-![]((https://raw.githubusercontent.com/sincw/learn-web/master/img/02/relative-pos.jpg))
+![](https://raw.githubusercontent.com/sincw/learn-web/master/img/02/relative-pos.jpg)
 
 
 #### 相对定位不脱标
@@ -137,7 +137,7 @@ PS：负数表示相反的方向。
 这样可以保证父亲没有脱标，儿子脱标在父亲的范围里面移动。于是经常这样做：
 父亲设置相对定位（零偏移），然后让儿子绝对定位一定的距离。
 
-![](http://raw.githubusercontent.com/sincw/learn-web/master/img/02/prsa.png)
+![](http://raw.githubusercontent.com/sincw/learn-web/master/img/02/prsa.jpg)
 
 ```html
                 <div class="r-nav-top">
@@ -267,12 +267,12 @@ float:  left   |   right /*浮动方向*/
 
 > 把无序列表 ul li 浮动起来做成的导航。
 
-![](http://raw.githubusercontent.com/sincw/learn-web/master/img/02/douban.png)
+![](http://raw.githubusercontent.com/sincw/learn-web/master/img/02/douban.jpg)
 
 
 - 网页布局
 
-![](http://raw.githubusercontent.com/sincw/learn-web/master/img/02/jd-layout.jpg.png)
+![](http://raw.githubusercontent.com/sincw/learn-web/master/img/02/jd-layout.jpg)
 
 
 

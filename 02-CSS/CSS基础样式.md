@@ -1,4 +1,4 @@
-#CSS基础样式
+#  CSS基础样式
 
 
 ### 一、字体
@@ -82,7 +82,7 @@ CSS样式中，我们常用的文本属性有以下几种：
 
 下面是所有的文本属性
 
-![]((https://raw.githubusercontent.com/sincw/learn-web/master/img/02/css-textField.jpg))
+![](https://raw.githubusercontent.com/sincw/learn-web/master/img/02/css-textField.jpg)
 
 ### 三、背景
 ```css
@@ -116,9 +116,9 @@ background: red url("1.png") no-repeat 30px 40px scroll;
 
 
 ### 四、边距
-![]((https://raw.githubusercontent.com/sincw/learn-web/master/img/02/box-model.jpg))
+![](https://raw.githubusercontent.com/sincw/learn-web/master/img/02/box-model.png)
 
-####border
+####  border
 ```css
 Border-top-style:  solid   /*实线*/
 dotted  /*点线*/
@@ -154,7 +154,7 @@ border: 1px solid #fff;
 border-collapse:collapse;
 ```
 
-####padding（内边距）
+####  padding（内边距）
 
 ```css
 padding-left   |   right    |  top  |  bottom
@@ -181,7 +181,7 @@ Padding: 20px  30px   40px  50px;   /*上20px 右30px  下40px  左  50px*/
 
 
 
-####margin（外边距）
+####  margin（外边距）
 
 ```
 margin-left   | right  |  top  |  bottom
@@ -213,30 +213,28 @@ margin: 20px  30px   40px  50px; /*上20px   右30px   下40px  左50px*/
 
 display 是CSS中最重要的用于控制布局的属性。每个元素都有一个默认的 display 值，这与元素的类型有关。对于大多数元素它们的默认值通常是 block 或 inline 。一个 block 元素通常被叫做块级元素。一个 inline 元素通常被叫做行内元素。
 
-####block
+####  block
 ```html
 <div class="elem">
-  <span class="label">&lt;div&gt;</span>
   <p>
      <code>div</code> 是一个标准的块级元素。一个块级元素会新开始一行并且尽可能撑满容器。其他常用的块级元素包括 <code>p</code> 、 <code>form</code> 和HTML5中的新元素： <code>header</code> 、 <code>footer</code> 、 <code>section</code> 等等。
   </p>
-  <span class="endlabel">&lt;/div&gt;</span>
 </div>
 ```
 
-####inline
+####  inline
 span 是一个标准的行内元素。一个行内元素可以在段落中 <span> 像这样 </span> 包裹一些文字而不会打乱段落的布局。 a 元素是最常用的行内元素，它可以被用作链接。
 ```html
 <span class="elem elem-inline">像这样</span>
 ```
 
-####none
+####  none
 另一个常用的display值是 none 。一些特殊元素的默认 display 值是它，例如 script 。 display:none 通常被 JavaScript 用来在不删除元素的情况下隐藏或显示元素。
 
 它和 visibility 属性不一样。把 display 设置成 none 元素不会占据它本来应该显示的空间，但是设置成 visibility: hidden; 还会占据空间。
 
 
-####inline-block
+####  inline-block
 简单来说就是将对象呈现为inline对象，但是对象的内容作为block对象呈现。之后的内联对象会被排列在同一行内。比如我们可以给一个link（a元素）inline-block属性值，使其既具有block的宽度高度特性又具有inline的同行特性。
 ```css
 .copyright_auth a {
@@ -246,5 +244,5 @@ span 是一个标准的行内元素。一个行内元素可以在段落中 <span
 }
 ```
 
-####最后
+####  最后
 以上是我们常用的4中状态，通过他们之间相互转换，我们可以做出很多特殊的布局，还有更多的状态大家可以自行查阅。
