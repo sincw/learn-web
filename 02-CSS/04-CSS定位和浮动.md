@@ -75,7 +75,7 @@ position: fixed;     <!-- 固定定位 -->
 
 效果如下:
 ![](https://raw.githubusercontent.com/sincw/learn-web/master/img/02/relative-pos.jpg)
-
+![](http://raw.githubusercontent.com/sincw/learn-web/master/img/02/float1.png)
 
 #### 相对定位不脱标
 
@@ -255,7 +255,7 @@ float:  left   |   right /*浮动方向*/
 ### 3、浮动的作用
 
 -  文本绕图
-
+![](http://raw.githubusercontent.com/sincw/learn-web/master/img/02/float1.png)
 ![](http://raw.githubusercontent.com/sincw/learn-web/master/img/02/float1.png)
 
 
