@@ -84,9 +84,10 @@ p标签中的所有文字都是红色，表示span继承了p的color.
 高级别选择器会覆盖低级别选择器的样式（不论加载样式次序）
 
 下面是一个简单的例子
-![](https://raw.githubusercontent.com/sincw/learn-web/master/img/02/cssshili1.jpg)
 
-![](https://raw.githubusercontent.com/sincw/learn-web/master/img/02/cssshili2.jpg)
+![](https://raw.githubusercontent.com/sincw/learn-web/master/img/02/cssshili11.jpg)
+
+![](https://raw.githubusercontent.com/sincw/learn-web/master/img/02/cssshili22.jpg)
 
 !important 规则
 该样式声明会覆盖CSS中任何其他的声明
