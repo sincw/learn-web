@@ -123,17 +123,17 @@ PS：负数表示相反的方向。
 #### 绝对定位的参考点（重要）
 
 （1）如果用**top描述**，那么参考点就是**页面的左上角**，而不是浏览器的左上角：
-![2](http://raw.githubusercontent.com/sincw/learn-web/master/img/02/20180807_2120.png)
+![2](https://raw.githubusercontent.com/sincw/learn-web/master/img/02/20180807_2120.png)
 
 （2）如果用**bottom描述**，那么参考点就是**浏览器首屏窗口尺寸**（好好理解“首屏”二字），对应的页面的左下角：
-![3](http://raw.githubusercontent.com/sincw/learn-web/master/img/02/20180807_2121.png)
+![3](https://raw.githubusercontent.com/sincw/learn-web/master/img/02/20180807_2121.png)
 
 > 常见应用
 
 “**子绝父相**”
 这样可以保证父亲没有脱标，儿子脱标在父亲的范围里面移动。于是经常这样做：
 父亲设置相对定位（零偏移），然后让儿子绝对定位一定的距离。
-![4](http://raw.githubusercontent.com/sincw/learn-web/master/img/02/prsa.jpg)
+![4](https://raw.githubusercontent.com/sincw/learn-web/master/img/02/prsa.jpg)
 
 ```html
                 <div class="r-nav-top">
@@ -254,8 +254,7 @@ float:  left   |   right /*浮动方向*/
 ### 3、浮动的作用
 
 -  文本绕图
-![5](http://raw.githubusercontent.com/sincw/learn-web/master/img/02/float1.png)
-![6](http://raw.githubusercontent.com/sincw/learn-web/master/img/02/float1.png)
+![5](https://raw.githubusercontent.com/sincw/learn-web/master/img/02/float1.png)
 
 
 
@@ -263,12 +262,12 @@ float:  left   |   right /*浮动方向*/
 
 > 把无序列表 ul li 浮动起来做成的导航。
 
-![7](http://raw.githubusercontent.com/sincw/learn-web/master/img/02/douban.jpg)
+![7](https://raw.githubusercontent.com/sincw/learn-web/master/img/02/douban.jpg)
 
 
 - 网页布局
 
-![8](http://raw.githubusercontent.com/sincw/learn-web/master/img/02/jd-layout.jpg)
+![8](https://raw.githubusercontent.com/sincw/learn-web/master/img/02/jd-layout.jpg)
 
 
 
