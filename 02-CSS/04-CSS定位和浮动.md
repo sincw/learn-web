@@ -133,6 +133,7 @@ PS：负数表示相反的方向。
 “**子绝父相**”
 这样可以保证父亲没有脱标，儿子脱标在父亲的范围里面移动。于是经常这样做：
 父亲设置相对定位（零偏移），然后让儿子绝对定位一定的距离。
+
 ![4](https://raw.githubusercontent.com/sincw/learn-web/master/img/02/prsa.jpg)
 
 ```html
@@ -254,6 +255,7 @@ float:  left   |   right /*浮动方向*/
 ### 3、浮动的作用
 
 -  文本绕图
+
 ![5](https://raw.githubusercontent.com/sincw/learn-web/master/img/02/float1.png)
 
 
