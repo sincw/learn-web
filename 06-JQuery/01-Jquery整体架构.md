@@ -1,4 +1,4 @@
-#JQuery结构
+# JQuery结构
 
 ## 1、总体架构
 
@@ -149,3 +149,50 @@ var test = new $('#test');
 
 
 ![](imgs/1533828264.jpg)
+
+
+### 1.3  自调用函数实现的功能
+
+```javascript
+(function( window, undefined ) {
+
+    // 构造jQuery对象
+
+var jQuery = function( selector, context ) {
+
+        return new jQuery.fn.init( selector, context, rootjQuery );
+
+    }
+
+// 工具函数 Utilities
+
+// 异步队列 Deferred
+
+// 浏览器测试 Support
+
+// 数据缓存 Data
+
+// 队列 queue
+
+// 属性操作 Attribute
+
+// 事件处理 Event
+
+// 选择器 Sizzle
+
+// DOM遍历
+
+// DOM操作
+
+// CSS操作
+
+// 异步请求 Ajax
+
+// 动画 FX
+
+// 坐标和大小
+
+    window.jQuery = window.$ = jQuery;
+
+})(window);
+```
