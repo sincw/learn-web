@@ -102,8 +102,155 @@ if (typeof module === "object" && typeof module.exports === "object") {
 ```
 
 
-### 1.2 无new 构造
+### 1.2  jQuery自调用函数里面有什么
 
+主要功能
+```javascript
+(function( window, undefined ) {
+
+    // 构造jQuery对象
+
+var jQuery = function( selector, context ) {
+
+        return new jQuery.fn.init( selector, context, rootjQuery );
+
+    }
+    
+
+    // 工具函数 Utilities
+    
+    // 异步队列 Deferred
+    
+    // 浏览器测试 Support
+    
+    // 数据缓存 Data
+    
+    // 队列 queue
+    
+    // 属性操作 Attribute
+    
+    // 事件处理 Event
+    
+    // 选择器 Sizzle
+    
+    // DOM遍历
+    
+    // DOM操作
+    
+    // CSS操作
+    
+    // 异步请求 Ajax
+    
+    // 动画 FX
+
+    // 坐标和大小
+
+    window.jQuery = window.$ = jQuery;
+
+})(window);
+```
+
+让我们在具体一点
+```javascript
+(function( window, undefined ) {
+
+   
+
+    var jQuery = (function() {
+
+       // 构建jQuery对象
+
+       var jQuery = function( selector, context ) {
+
+           return new jQuery.fn.init( selector, context, rootjQuery );
+
+       }
+
+   
+
+       // jQuery对象原型
+
+       jQuery.fn = jQuery.prototype = {
+
+           constructor: jQuery,
+
+           init: function( selector, context, rootjQuery ) {
+
+              // selector有以下7种分支情况：
+
+              // DOM元素
+
+              // body（优化）
+
+              // 字符串：HTML标签、HTML字符串、#id、选择器表达式
+
+              // 函数（作为ready回调函数）
+
+              // 最后返回伪数组
+
+           }
+
+       };
+
+       
+       jQuery.fn.init.prototype = jQuery.fn;
+
+   
+
+       // 合并内容到第一个参数中，后续大部分功能都通过该函数扩展
+
+       // 通过jQuery.fn.extend扩展函数，大部分都会调用通过jQuery.extend扩展的同名函数
+
+       jQuery.extend = jQuery.fn.extend = function() {};
+
+      
+
+       // 在jQuery上扩展静态方法
+
+       jQuery.extend({
+
+           // ready bindReady
+
+           // isPlainObject isEmptyObject
+
+           // parseJSON parseXML
+
+           // globalEval
+
+           // each makeArray inArray merge grep map
+
+           // proxy
+
+           // access
+
+           // uaMatch
+
+           // sub
+
+           // browser
+
+       });
+
+ 
+
+        // 到这里，jQuery对象构造完成，后边的代码都是对jQuery或jQuery对象的扩展
+
+       return jQuery;
+
+   
+
+    })();
+
+   
+
+    window.jQuery = window.$ = jQuery;
+
+})(window);
+```
+
+
+
+### 1.3 无new 构造
 
 ```javascript
 // 无 new 构造
@@ -131,9 +278,63 @@ var test = new $('#test');
         // 实例化化方法，这个方法可以称作 jQuery 对象构造器
         init: function(selector, context, rootjQuery) {
             // ...
+        },
+        each: function( callback, args ) {
+            return jQuery.each( this, callback, args );
         }
     }
-    // 这一句很关键，也很绕
+
+    jQuery.extend({
+    // args is for internal usage only
+    	each: function( obj, callback, args ) {
+    		var value,
+    			i = 0,
+    			length = obj.length,
+    			isArray = isArraylike( obj );
+    
+    		if ( args ) {
+    			if ( isArray ) {
+    				for ( ; i < length; i++ ) {
+    					value = callback.apply( obj[ i ], args );
+    
+    					if ( value === false ) {
+    						break;
+    					}
+    				}
+    			} else {
+    				for ( i in obj ) {
+    					value = callback.apply( obj[ i ], args );
+    
+    					if ( value === false ) {
+    						break;
+    					}
+    				}
+    			}
+    
+    		// A special, fast, case for the most common use of each
+    		} else {
+    			if ( isArray ) {
+    				for ( ; i < length; i++ ) {
+    					value = callback.call( obj[ i ], i, obj[ i ] );
+    
+    					if ( value === false ) {
+    						break;
+    					}
+    				}
+    			} else {
+    				for ( i in obj ) {
+    					value = callback.call( obj[ i ], i, obj[ i ] );
+    
+    					if ( value === false ) {
+    						break;
+    					}
+    				}
+    			}
+    		}
+    
+    		return obj;
+    	}
+    });
     // jQuery 没有使用 new 运算符将 jQuery 实例化，而是直接调用其函数
     // 要实现这样,那么 jQuery 就要看成一个类，且返回一个正确的实例
     // 且实例还要能正确访问 jQuery 类原型上的属性与方法
@@ -145,54 +346,22 @@ var test = new $('#test');
 ```
 
 下面是我们正常new函数时建立的原线链的关系和Jquery调整后的关系，可以看到，jQuery并没有返回其本身，而是返回了他的原型链中fn下的init函数。init函数的原型指向了jQuery.fn,
-这样返回的对象就能够调用fn中的例如sayHi方法。
+这样返回的对象实例就能够调用fn中的例如sayHi方法。
+
+其中还实现一个绝妙的功能，静态方法与实例方法共享。我们知道jquery的each方法有两种用法，
+$.each(obj,callback)和$('#sincw).each(callback),在jquery中有两种实现吗？不，只有一种实现。
+$.each直接拿到了jQuery.each实现，而$().each通过原型拿到了jQuery.each( this, callback, args );
+
+![](imgs/1533995388.jpg)
+
+这段代码就是整个结构设计的最核心的东西了，有这样的一个处理，整个结构就活了！。
 
 
 ![](imgs/1533828264.jpg)
 
 
-### 1.3  自调用函数实现的功能
 
-```javascript
-(function( window, undefined ) {
 
-    // 构造jQuery对象
 
-var jQuery = function( selector, context ) {
 
-        return new jQuery.fn.init( selector, context, rootjQuery );
 
-    }
-
-// 工具函数 Utilities
-
-// 异步队列 Deferred
-
-// 浏览器测试 Support
-
-// 数据缓存 Data
-
-// 队列 queue
-
-// 属性操作 Attribute
-
-// 事件处理 Event
-
-// 选择器 Sizzle
-
-// DOM遍历
-
-// DOM操作
-
-// CSS操作
-
-// 异步请求 Ajax
-
-// 动画 FX
-
-// 坐标和大小
-
-    window.jQuery = window.$ = jQuery;
-
-})(window);
-```
