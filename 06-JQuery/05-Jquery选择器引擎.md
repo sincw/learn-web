@@ -46,9 +46,9 @@ if(document.querySelectorAll) {
 具体实现如下
 
 ```html
-    var chunker = chunker = /((?:\((?:\([^()]+\)|[^()]+)+\)|\[(?:\[[^\[\]]*\]|['"][^'"]*['"]|[^\[\]'"]+)+\]|\\.|[^ >+~,(\[\\]+)+|[>+~])(\s*,\s*)?((?:.|\r|\n)*)/g;
+    var  chunker = /((?:\((?:\([^()]+\)|[^()]+)+\)|\[(?:\[[^\[\]]*\]|['"][^'"]*['"]|[^\[\]'"]+)+\]|\\.|[^ >+~,(\[\\]+)+|[>+~])(\s*,\s*)?((?:.|\r|\n)*)/g;
     
-    var soFar = '#J-con  ul>li:gt(2)';
+    var soFar = '#Sinw  ul>li:gt(2),p li';
     
     var m,extra,parts = [];
     do {
@@ -65,10 +65,10 @@ if(document.querySelectorAll) {
     } while ( m );
 
     console.info(parts);
-    console.info(extra);
+    console.info(extra);//在将txtra进行拆分
 ```
 
-![](imgs/1534001596.jpg)
+![](imgs/1534047534.jpg)
 
 
 #### 2.块表达式查找
@@ -141,7 +141,7 @@ for ( i = 0, len = Expr.order.length; i < len; i++ ) {
 
 - Expr.filter： 过滤的具体实现对象
 
-- 内过滤、块间从左到后: inplace=false,返回新对象；块间从右到左: inplace=true, 原来的元素集合上过滤
+- 块间从左到右: inplace=false,返回新对象；块内从右到左: inplace=true, 原来的元素集合上过滤
 
 ```javascript
 Sizzle.filter = function( expr, set, inplace, not ) {
