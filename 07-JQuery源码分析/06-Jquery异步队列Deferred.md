@@ -45,5 +45,187 @@ JavaScript脚本可操纵DOM元素，如果在修改这些元素属性的同时�
 ![](imgs/1534061520.jpg)
 
 
-### 异步队列 Deferred（待续）
+### 异步队列 Deferred 原理
+
+下面是JQuery中异步队列Deferred的用法：
+```javascript
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+</body>
+<!--<script src="deferred.js"></script>-->
+<script src="jquery-2.1.1.js"></script>
+<script>
+    function asynDosome(flag) {
+        var def = $.Deferred();
+        setTimeout(function () {
+            if (flag) {
+                var value = "OK";
+                def.resolve(value);
+            } else {
+                var value = "FAIL";
+                def.reject(value);
+            }
+        }, 1000);
+        return def.promise();
+    }
+
+    asynDosome(true).done(function (message) {
+        console.info(message);
+    }).done(function (message) {
+        return asynDosome(false);
+    }).fail(function (err) {
+        console.info(err);
+    })
+</script>
+</html>
+
+```
+
+大致的逻辑是这样的：
+
+- 1.调用deffered.promise对象的then方法，将函数放入callbacks队列进行函数注册。类似观察者模式。
+
+- 2.构建deffered对象，它会接受一个参数value,代表异步返回的结果，当异步操作成果后，调用resolve方法，
+执行callbacks队列中的回调函数。
+
+
+
+### 异步队列 Deferred 简单实现
+
+```javascript
+/**
+ * promise类
+ * @constructor
+ */
+function Promise() {
+    this.handlerQueue = [];
+    this.isPromise = true;
+}
+
+/**
+ * 注册函数
+ * @param onFulfilled 成功函数
+ * @param onRejected  失败函数
+ * @returns {Promise} 返回this链式调用
+ */
+Promise.prototype.then = function (onFulfilled, onRejected) {
+    var handler = {};
+    if (typeof onFulfilled === 'function') {
+        handler.resolve = onFulfilled;
+    }
+    if (typeof onRejected === 'function') {
+        handler.reject = onRejected;
+    }
+    this.handlerQueue.push(handler);
+    return this;
+}
+
+/**
+ * 注册拒绝函数
+ * @param onRejected 扑捉异常函数
+ * @returns {Promise} 返回this链式调用
+ */
+Promise.prototype.catch = function (onRejected) {
+    var handler = {}
+    if (typeof onRejected === 'function') {
+        handler.reject = onRejected
+    }
+    this.handlerQueue.push(handler)
+    return this
+}
+
+/**
+ * 异步对象
+ * @constructor
+ */
+function Deferred() {
+    this.state = 'pending';
+    this.promise = new Promise();
+}
+
+/**
+ * 回调已完成时执行，释放回调队列
+ * @param obj 回调结果值
+ */
+Deferred.prototype.resolve = function (obj) {
+    this.state = 'fulfilled';
+    var handler, promise = this.promise;
+    while (handler = promise.handlerQueue.shift()) {
+        if (handler && handler.resolve) {
+            var res = handler.resolve(obj)
+            if (res && res.isPromise) {
+                //当返回值是Deferred对象时，继承父Deferred的回调队列，将子promise对象赋值给父promise
+                res.handlerQueue = promise.handlerQueue;
+                this.promise = res;
+                return;
+            } else {
+                //值传递
+                obj = res;
+            }
+        }
+    }
+}
+
+/**
+ * 同上
+ * @param obj
+ */
+Deferred.prototype.reject = function (obj) {
+    this.state = 'rejected'
+    var promise = this.promise
+    var handler = {}
+    while (handler = promise.handlerQueue.shift()) {
+        if (handler && handler.reject) {
+            var res = handler.reject(obj)
+            if (res && res.isPromise) {
+                res.handlerQueue = promise.handlerQueue
+                this.promise = res
+                return;
+            } else {
+                obj = res
+            }
+        }
+    }
+}
+
+/**
+ * 测试函数.
+ * @param flag 异步结果
+ * @param name 回调信息
+ * @returns {Promise|*}
+ */
+function asyncDosomeing(flag, name) {
+    const deferred = new Deferred()
+    setTimeout(function () {
+        if (flag) {
+            deferred.resolve({code: 200, message: '成功', name: name})
+        } else {
+            deferred.reject({code: 400, message: '失败', name: name})
+        }
+    }, 1000)
+    return deferred.promise
+}
+
+asyncDosomeing(true, 'asyncDosomeing1').then(function (result) {
+    console.info(result)
+    return asyncDosomeing(false, 'asyncDosomeing2')
+}).then(function (result) {
+    console.info(result)
+    return 'middle'
+}).catch(function (err) {
+    console.info('catch')
+    console.info(err)
+    return asyncDosomeing(true, 'asyncDosomeing3----catch')
+}).then(function (result) {
+    console.info("sincw")
+    console.info(result)
+})
+
+
+```
 
