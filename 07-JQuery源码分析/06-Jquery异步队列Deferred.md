@@ -94,8 +94,119 @@ JavaScript脚本可操纵DOM元素，如果在修改这些元素属性的同时�
 执行callbacks队列中的回调函数。
 
 
+#### Deferred Jquery源码
 
-### 异步队列 Deferred 简单实现
+水平有限，源码很多地方不清楚，下面是查阅资料时看到比较好的解析。
+
+https://www.imooc.com/code/3774
+
+```javascript
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+<title></title>
+</head>
+<body>
+
+<button>测试Deferred</button>
+
+<script type="text/javascript">
+      
+    function Deferred(){
+      //内部deferred对象
+      var deferred = {};
+
+      //定义的基本接口
+      //Callbacks(once memory)的用法，就是只执行一次，并且保持以前的值
+      // 每个元组分别包含一些与当前deferred相关的信息: 
+      // 分别是：触发回调函数列表执行(函数名)，添加回调函数（函数名），回调函数列表（jQuery.Callbacks对象），deferred最终状态（第三组数据除外）
+      // 总体而言，三个元组会有对应的三个callbacklist对应于doneList, failList, processList
+      var tuples = [
+        ["resolve", "done", jQuery.Callbacks("once memory"), "resolved"],
+        ["reject", "fail", jQuery.Callbacks("once memory"), "rejected"],
+        ["notify", "progress", jQuery.Callbacks("memory")]
+      ];
+
+      //deferred的状态，三种：pending(初始状态), resolved(解决状态), rejected(拒绝状态)
+      //其实就是tuples最后定义的
+      var state = "pending";
+
+      //内部promise对象,作用：
+      //1：通过promise.promise( deferred );混入到deferred中使用
+      //2：可以生成一个受限的deferred对象，
+      //   不在拥有resolve(With), reject(With), notify(With)这些能改变deferred对象状态并且执行callbacklist的方法了
+      //   换句话只能读，不能改变了
+      //扩展
+      //  done fail pipe process 
+      var promise = {
+        state: function() {},
+        always: function() {},
+        then: function() {},
+        promise: function(obj) {
+          return obj != null ? jQuery.extend(obj, promise) : promise;
+        }
+      }
+
+      //管道接口,API别名
+      promise.pipe = promise.then;
+
+      //遍历tuples
+      //把定义的接口混入到deferred中
+      jQuery.each(tuples, function(i, tuple) {
+        var list = tuple[2],
+          stateString = tuple[3];
+
+          // 给上面的promise对象添加done，fail，process方法
+          // 分别引用三个不同 jQuery.Callbacks("once memory")对象的add方法，在初始化就构建成了对象
+          // 向各自的回调函数列表list（各自闭包中）中添加回调函数，互不干扰
+          // promise = {
+          //    done:
+          //    fail:
+          //    process
+          // }
+          promise[tuple[1]] = list.add;
+
+        if (stateString) {
+          list.add(function() {
+            state = stateString;
+          }, tuples[i ^ 1][2].disable, tuples[2][2].lock);
+        }
+        deferred[tuple[0]] = function() {
+          deferred[tuple[0] + "With"](this === deferred ? promise : this, arguments);
+          return this;
+        };
+        deferred[tuple[0] + "With"] = list.fireWith;
+      });
+      //混入方法
+      promise.promise(deferred);
+
+      return deferred;
+    }
+
+
+  $("button").on("click", function() {
+    var dtd = Deferred();
+    // 给deferred注册一个成功后的回调通知
+    dtd.done(function() {
+       $('body').append('<li>Deferred成功</li>')
+    })
+    // 开始执行一段代码
+    setTimeout(function() {
+      dtd.resolve(); // 改变deferred对象的执行状态
+    }, 500);
+  })
+
+
+
+</script>
+
+</body>
+</html>
+```
+
+### Deferred 简单实现
 
 ```javascript
 /**
@@ -121,12 +232,20 @@ Promise.prototype.then = function (onFulfilled, onRejected) {
     if (typeof onRejected === 'function') {
         handler.reject = onRejected;
     }
-    this.handlerQueue.push(handler);
+    
+    //解决Promise异步操作成功这之后调用的then注册的回调就再也不会执行了
+    //挂起时添加函数至队列，已完成时直接执行函数，失败时什么也不做
+    if(this._deferred.state === "pending"){
+        this.handlerQueue.push(handler);
+    }else if(this._deferred.state === "fulfilled"){
+        onFulfilled(this.result);
+    }
+
     return this;
 }
 
 /**
- * 注册拒绝函数
+ * 注册函数
  * @param onRejected 扑捉异常函数
  * @returns {Promise} 返回this链式调用
  */
@@ -134,6 +253,11 @@ Promise.prototype.catch = function (onRejected) {
     var handler = {}
     if (typeof onRejected === 'function') {
         handler.reject = onRejected
+    }
+    if(this._deferred.state === "pending"){
+        this.handlerQueue.push(handler);
+    }else if(this._deferred.state === "rejected"){
+        onRejected(this.result);
     }
     this.handlerQueue.push(handler)
     return this
@@ -146,29 +270,43 @@ Promise.prototype.catch = function (onRejected) {
 function Deferred() {
     this.state = 'pending';
     this.promise = new Promise();
+    this.promise._deferred = this;
 }
 
 /**
  * 回调已完成时执行，释放回调队列
  * @param obj 回调结果值
  */
+/**
+ * 回调成功时执行，释放回调队列
+ * @param obj 回调结果值
+ */
 Deferred.prototype.resolve = function (obj) {
     this.state = 'fulfilled';
     var handler, promise = this.promise;
-    while (handler = promise.handlerQueue.shift()) {
-        if (handler && handler.resolve) {
-            var res = handler.resolve(obj)
-            if (res && res.isPromise) {
-                //当返回值是Deferred对象时，继承父Deferred的回调队列，将子promise对象赋值给父promise
-                res.handlerQueue = promise.handlerQueue;
-                this.promise = res;
-                return;
-            } else {
-                //值传递
-                obj = res;
+    //就是通过setTimeout机制，将resolve中执行回调的逻辑放置到JS任务队列末尾
+    //保证在resolve执行时，then方法的回调函数已经注册完成.
+    setTimeout(function () {
+        while (handler = promise.handlerQueue.shift()) {
+            if (handler && handler.resolve) {
+                var res = handler.resolve(obj)
+                if (res && res.isPromise) {
+                    //当返回值是Deferred对象时，继承父Deferred的回调队列，将子promise对象赋值给父promise
+                    res.handlerQueue = promise.handlerQueue;
+                    res._deferred = this;
+                    this.promise = res;
+                    this.result = obj;
+                    return;
+                } else {
+                    //值传递
+                    obj = res;
+                }
             }
         }
-    }
+        //返回结果保存用于执行以后完成后注册的then函数.
+        this.result = obj;
+    }, 0)
+
 }
 
 /**
@@ -178,19 +316,26 @@ Deferred.prototype.resolve = function (obj) {
 Deferred.prototype.reject = function (obj) {
     this.state = 'rejected'
     var promise = this.promise
-    var handler = {}
-    while (handler = promise.handlerQueue.shift()) {
-        if (handler && handler.reject) {
-            var res = handler.reject(obj)
-            if (res && res.isPromise) {
-                res.handlerQueue = promise.handlerQueue
-                this.promise = res
-                return;
-            } else {
-                obj = res
+    var handler = {};
+    setTimeout(function () {
+        while (handler = promise.handlerQueue.shift()) {
+            if (handler && handler.reject) {
+                var res = handler.reject(obj)
+                if (res && res.isPromise) {
+                    //当返回值是Deferred对象时，继承父Deferred的回调队列，将子promise对象赋值给父promise
+                    res.handlerQueue = promise.handlerQueue;
+                    res._deferred = this;
+                    this.promise = res;
+                    this.result = obj;
+                    return;
+                } else {
+                    //值传递
+                    obj = res;
+                }
             }
         }
-    }
+        this.result = obj;
+    }, 0)
 }
 
 /**
@@ -226,6 +371,54 @@ asyncDosomeing(true, 'asyncDosomeing1').then(function (result) {
     console.info(result)
 })
 
+
+/**
+ * 在使用第三方异步模块时，这些模块的异步回调API 不支持我们的promise写法
+ * 实现一个 方法可以批量将方法Promise化，--注释掉上方的测试代码食用更佳
+ */
+
+/**
+ * 传递给模块的回调.
+ */
+Deferred.prototype.callBack = function () {
+    var that = this
+    return function (err, result) {
+        if (err) {
+            that.reject(result)
+        } else {
+            that.resolve(result)
+        }
+    }
+}
+
+var promisify = function (method) {
+    if (typeof method !== 'function') {
+        throw new TypeError('is not a function')
+    }
+    return function () {
+        const defrred = new Deferred()
+        var args = Array.prototype.slice.call(arguments, 0) // 克隆参数
+        args.push(defrred.callBack())
+        method.apply(this, args)
+        return defrred.promise
+    }
+}
+
+function asyncdemo(flag, name, callback){
+    setTimeout(function () {
+        callback(flag,{code: 400, name: name});
+    }, 1000)
+}
+
+var readFile = promisify(asyncdemo);
+readFile(false,"sincw").then(function(result){
+    console.info(result);
+    return readFile(true,"sincw2");
+}).then(function(result){
+    console.log(result)
+}).catch(function(error){
+    console.info(error);
+});
 
 ```
 
