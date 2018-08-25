@@ -119,7 +119,11 @@ https://www.imooc.com/code/3774
       var deferred = {};
 
       //定义的基本接口
-      //Callbacks(once memory)的用法，就是只执行一次，并且保持以前的值
+      //jQuery.Callbacks用来进行函数队列的add、remove、fire、lock等操作
+      //once: 确保这个回调列表只执行（ .fire() ）一次(像一个递延 Deferred)。
+      //memory: 保持以前的值，将添加到这个列表的后面的最新的值立即执行调用任何回调 (像一个递延 Deferred)。
+      //unique: 确保一次只能添加一个回调(所以在列表中没有重复的回调)。
+      //stopOnFalse: 当一个回调返回false 时中断调用。
       // 每个元组分别包含一些与当前deferred相关的信息: 
       // 分别是：触发回调函数列表执行(函数名)，添加回调函数（函数名），回调函数列表（jQuery.Callbacks对象），deferred最终状态（第三组数据除外）
       // 总体而言，三个元组会有对应的三个callbacklist对应于doneList, failList, processList

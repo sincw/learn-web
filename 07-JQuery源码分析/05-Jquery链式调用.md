@@ -85,6 +85,7 @@ $('input[type="button"]').eq(0).click(
             //由工厂产生一个新的对象，并设置其父亲
             eq:function(i){
                 var that = new _$(this.elements[i])
+                //Jquery在构建Jquery对象的时候就将pre赋值了
                 that.pre = this;
                 return that;
             },
@@ -114,3 +115,54 @@ $('input[type="button"]').eq(0).click(
 ```
 
 ![](imgs/1533999884.jpg)
+
+
+
+### prevObject
+
+![](imgs/1535211136(1).jpg)
+
+prevObject就是上例中的pre,在什么情况下会产生？在构建jQuery对象的时候，通过pushStack方法构建
+
+```javascript
+jQuery.fn.extend({
+    find: function(selector) {
+
+        //...........................
+
+        //通过sizzle选择器，返回结果集
+        jQuery.find(selector, self[i], ret);
+
+        // Needed because $( selector, context ) becomes $( context ).find( selector )
+        ret = this.pushStack(len > 1 ? jQuery.unique(ret) : ret);
+        ret.selector = this.selector ? this.selector + " " + selector : selector;
+        return ret;
+    }
+})
+```
+
+##### pushStack
+
+通过新的DOM元素去创建一个新的jQuery对象
+
+```javascript
+pushStack: function( elems ) {
+    // Build a new jQuery matched element set
+    var ret = jQuery.merge( this.constructor(), elems );
+
+    // Add the old object onto the stack (as a reference)
+    ret.prevObject = this;
+    ret.context = this.context;
+
+    // Return the newly-formed element set
+    return ret;
+ }
+```
+
+流程解析：
+
+1、首先构建一个新的jQuery对象，因为constructor是指向构造器的，所以这里就等同于调用jQuery()方法了，返回了一个新的jQuery对象；
+
+2、然后用jQuery.merge语句把elems节点合并到新的jQuery对象上；
+
+3、最后给返回的新jQuery对象添加prevObject属性，我们看到prevObject其实还是当前jQuery的一个引用罢了，所以也就是为什么通过prevObject能取到上一个合集的原因了。
