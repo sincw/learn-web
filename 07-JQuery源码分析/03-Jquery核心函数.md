@@ -619,3 +619,46 @@ var sQuery = jQuery.noConflict(true);
 sQuery.("#sincw");
 
 ```
+
+### 5、$.Callbacks
+
+它是一个工厂函数，使用函数调用（非new，它不是一个类）创建对象，它有一个可选参数flags用来设置回调函数的行为，
+对外的接口也就是self的返回。
+
+```javascript
+jQuery.Callbacks()的API列表如下：
+
+callbacks.add()        ：回调列表中添加一个回调或回调的集合。
+callbacks.disable()    ：禁用回调列表中的回调。
+callbacks.disabled()   ：确定回调列表是否已被禁用。 
+callbacks.empty()      ：从列表中删除所有的回调。
+callbacks.fire()       ：用给定的参数调用所有的回调。
+callbacks.fired()      ：访问给定的上下文和参数列表中的所有回调。 
+callbacks.fireWith()   ：访问给定的上下文和参数列表中的所有回调。
+callbacks.has()        ：确定列表中是否提供一个回调。
+callbacks.lock()       ：锁定当前状态的回调列表。
+callbacks.locked()     ：确定回调列表是否已被锁定。
+callbacks.remove()     ：从回调列表中的删除一个回调或回调集合。
+```
+
+```javascript
+function fn1(val) {
+  console.log('fn1 says:' + val);
+}
+
+function fn2(val) {
+  console.log('fn2 says ' + val);
+}
+var cbs = $.Callbacks();
+cbs.add(fn1);
+cbs.fire('foo');
+console.log('........')
+cbs.add(fn2);
+cbs.fire('bar')
+  
+//printout
+//fn1 says:foo 
+//………………………
+//fn1 says:bar 
+//fn2 says bar
+```
